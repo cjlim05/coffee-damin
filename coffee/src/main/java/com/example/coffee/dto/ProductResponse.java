@@ -18,7 +18,8 @@ public class ProductResponse {
     private String type;
     private String nationality;
     private String thumbnailImg;
-    private List<ImageResponse> images;
+    private String detailImg;
+    private List<ImageResponse> detailImages;
     private List<OptionResponse> options;
 
     @Data

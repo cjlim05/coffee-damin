@@ -196,7 +196,7 @@ public class ProductService {
        ========================= */
     private ProductResponse toResponse(Product product) {
 
-        List<ProductResponse.ImageResponse> images =
+        List<ProductResponse.ImageResponse> detailImages =
                 productImageRepository.findByProductOrderBySortOrder(product)
                         .stream()
                         .map(img -> ProductResponse.ImageResponse.builder()
@@ -228,7 +228,8 @@ public class ProductService {
                 .type(product.getType())
                 .nationality(product.getNationality())
                 .thumbnailImg(product.getThumbnailImg())
-                .images(images)
+                .detailImg(product.getDetailImg())
+                .detailImages(detailImages)
                 .options(options)
                 .build();
     }
