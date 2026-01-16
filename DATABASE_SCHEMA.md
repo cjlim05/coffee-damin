@@ -6,11 +6,6 @@
 
 ```
                     ┌─────────────┐
-                    │   category  │
-                    └──────┬──────┘
-                           │ 1:N
-                           ▼
-                    ┌─────────────┐
                     │   product   │
                     └──────┬──────┘
                            │
@@ -32,7 +27,6 @@
 
 | 테이블 | 설명 |
 |--------|------|
-| `category` | 상품 카테고리 |
 | `product` | 원두 상품 기본 정보 |
 | `product_option` | 상품 옵션 (용량별 추가금액) |
 | `product_variant` | 옵션별 재고 관리 |
@@ -42,35 +36,37 @@
 
 ## 테이블 상세
 
-### 1. category (카테고리)
-
-| 컬럼 | 타입 | NULL | 설명 |
-|------|------|------|------|
-| category_id | BIGINT | PK | 카테고리 ID |
-| category_name | VARCHAR(100) | YES | 카테고리명 |
-
----
-
-### 2. product (상품)
+### 1. product (상품)
 
 | 컬럼 | 타입 | NULL | 설명 |
 |------|------|------|------|
 | product_id | BIGINT | PK | 상품 ID |
 | product_name | VARCHAR(200) | NO | 상품명 |
 | base_price | INT | NO | 기본 가격 |
+| continent | VARCHAR(50) | YES | 대륙 (아프리카, 중남미, 아시아) |
 | nationality | VARCHAR(100) | YES | 원산지 |
 | type | VARCHAR(100) | YES | 가공방식 |
-| category_id | BIGINT | FK | 카테고리 ID |
 | thumbnail_img | VARCHAR(250) | YES | 썸네일 이미지 경로 |
 | detail_img | VARCHAR(250) | YES | 상세 이미지 경로 |
 
 **인덱스**
 - PK: `product_id`
-- FK: `category_id` → `category.category_id`
+
+**필터링**
+- `continent`: 대륙별 필터 (프론트엔드 하드코딩)
+- `nationality`: 원산지별 필터 (대륙 선택 시 해당 국가만 표시)
+- `type`: 가공방식별 필터 (프론트엔드 하드코딩)
+
+**대륙-국가 매핑**
+| 대륙 | 국가 |
+|------|------|
+| 아프리카 | 에티오피아, 케냐, 탄자니아, 르완다 |
+| 중남미 | 브라질, 콜롬비아, 과테말라, 코스타리카, 온두라스, 멕시코, 엘살바도르, 파나마, 페루, 니카라과, 볼리비아 |
+| 아시아 | 인도네시아, 베트남, 인도 |
 
 ---
 
-### 3. product_option (상품 옵션)
+### 2. product_option (상품 옵션)
 
 | 컬럼 | 타입 | NULL | 설명 |
 |------|------|------|------|
@@ -85,7 +81,7 @@
 
 ---
 
-### 4. product_variant (재고)
+### 3. product_variant (재고)
 
 | 컬럼 | 타입 | NULL | 설명 |
 |------|------|------|------|
@@ -101,7 +97,7 @@
 
 ---
 
-### 5. product_image (상품 이미지)
+### 4. product_image (상품 이미지)
 
 | 컬럼 | 타입 | NULL | 설명 |
 |------|------|------|------|
@@ -120,7 +116,6 @@
 
 | 테이블 | 참조하는 FK |
 |--------|-------------|
-| product | category_id → category |
 | product_option | product_id → product |
 | product_variant | product_id → product, option_id → product_option |
 | product_image | product_id → product |

@@ -12,8 +12,8 @@ public class ProductRequest {
     private String productName;
     private int basePrice;
     private String type;
+    private String continent;
     private String nationality;
-    private Long categoryId;
     private String productImg;
     private String thumbnailImg;
     private String detailImg;

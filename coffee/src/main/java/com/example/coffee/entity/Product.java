@@ -29,6 +29,9 @@ public class Product {
     @Column(name = "type", length = 100)
     private String type;
 
+    @Column(name = "continent", length = 50)
+    private String continent;
+
     @Column(name = "nationality", length = 100)
     private String nationality;
 
@@ -37,10 +40,6 @@ public class Product {
 
     @Column(name = "detail_img", length = 250)
     private String detailImg;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortOrder ASC")

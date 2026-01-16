@@ -16,6 +16,7 @@ public class ProductResponse {
     private String productName;
     private Integer basePrice;
     private String type;
+    private String continent;
     private String nationality;
     private String thumbnailImg;
     private String detailImg;

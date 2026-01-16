@@ -2,11 +2,13 @@ import { useState } from 'react'
 
 const UPLOAD_BASE = 'http://localhost:8080/uploads/'
 
-const NATIONALITIES = [
-  '브라질', '콜롬비아', '에티오피아', '케냐', '과테말라', '코스타리카',
-  '온두라스', '멕시코', '엘살바도르', '인도네시아', '베트남', '인도',
-  '탄자니아', '르완다', '파나마', '페루', '니카라과', '볼리비아',
-]
+const CONTINENT_COUNTRIES = {
+  '아프리카': ['에티오피아', '케냐', '탄자니아', '르완다'],
+  '중남미': ['브라질', '콜롬비아', '과테말라', '코스타리카', '온두라스', '멕시코', '엘살바도르', '파나마', '페루', '니카라과', '볼리비아'],
+  '아시아': ['인도네시아', '베트남', '인도'],
+}
+
+const CONTINENTS = Object.keys(CONTINENT_COUNTRIES)
 
 const PROCESS_TYPES = [
   '워시드', '내추럴', '허니', '화이트 허니', '옐로우 허니',
@@ -24,6 +26,7 @@ function getImageUrl(path) {
 const initialForm = {
   name: '',
   price: '',
+  continent: '',
   nationality: '',
   type: '',
   thumbnailFile: null,
@@ -45,6 +48,7 @@ export default function ProductForm({ editingId, editData, onSave, onCancel, sho
       return {
         name: editData.productName,
         price: editData.basePrice,
+        continent: editData.continent || '',
         nationality: editData.nationality || '',
         type: editData.type || '',
         thumbnailFile: null,
@@ -180,6 +184,7 @@ export default function ProductForm({ editingId, editData, onSave, onCancel, sho
     const fd = new FormData()
     fd.append('productName', form.name)
     fd.append('basePrice', Number(form.price || 0))
+    fd.append('continent', form.continent)
     fd.append('nationality', form.nationality)
     fd.append('type', form.type)
 
@@ -254,15 +259,33 @@ export default function ProductForm({ editingId, editData, onSave, onCancel, sho
           </div>
 
           <div className="form-group">
+            <label className="form-label">대륙</label>
+            <select
+              name="continent"
+              className="form-select"
+              value={form.continent}
+              onChange={(e) => {
+                setForm({ ...form, continent: e.target.value, nationality: '' })
+              }}
+            >
+              <option value="">선택하세요</option>
+              {CONTINENTS.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
             <label className="form-label">원산지</label>
             <select
               name="nationality"
               className="form-select"
               value={form.nationality}
               onChange={change}
+              disabled={!form.continent}
             >
               <option value="">선택하세요</option>
-              {NATIONALITIES.map(n => (
+              {form.continent && CONTINENT_COUNTRIES[form.continent]?.map(n => (
                 <option key={n} value={n}>{n}</option>
               ))}
             </select>

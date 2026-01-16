@@ -2,12 +2,10 @@ package com.example.coffee.service;
 
 import com.example.coffee.dto.ProductRequest;
 import com.example.coffee.dto.ProductResponse;
-import com.example.coffee.entity.Category;
 import com.example.coffee.entity.Product;
 import com.example.coffee.entity.ProductImage;
 import com.example.coffee.entity.ProductOption;
 import com.example.coffee.entity.ProductVariant;
-import com.example.coffee.repository.CategoryRepository;
 import com.example.coffee.repository.ProductImageRepository;
 import com.example.coffee.repository.ProductRepository;
 import com.example.coffee.repository.ProductOptionRepository;
@@ -49,6 +47,7 @@ public class ProductService {
                 .productName(request.getProductName())
                 .basePrice(request.getBasePrice())
                 .type(request.getType())
+                .continent(request.getContinent())
                 .nationality(request.getNationality())
                 .thumbnailImg(thumbnailPath)
                 .build();
@@ -118,6 +117,7 @@ public class ProductService {
         product.setProductName(request.getProductName());
         product.setBasePrice(request.getBasePrice());
         product.setType(request.getType());
+        product.setContinent(request.getContinent());
         product.setNationality(request.getNationality());
 
         // 썸네일 변경
@@ -226,6 +226,7 @@ public class ProductService {
                 .productName(product.getProductName())
                 .basePrice(product.getBasePrice())
                 .type(product.getType())
+                .continent(product.getContinent())
                 .nationality(product.getNationality())
                 .thumbnailImg(product.getThumbnailImg())
                 .detailImg(product.getDetailImg())
