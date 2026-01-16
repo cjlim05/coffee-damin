@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,36 +56,40 @@ public class ProductService {
         productRepository.save(product);
 
         // 3. 상세 이미지 저장 (여러 장 + 순서)
-        int order = 1;
-        for (MultipartFile file : detailImages) {
-            String path = fileStorageService.storeFile(file, "detail");
+        if (detailImages != null && !detailImages.isEmpty()) {
+            int order = 1;
+            for (MultipartFile file : detailImages) {
+                String path = fileStorageService.storeFile(file, "detail");
 
-            ProductImage img = ProductImage.builder()
-                    .product(product)
-                    .imageUrl(path)
-                    .sortOrder(order++)
-                    .build();
+                ProductImage img = ProductImage.builder()
+                        .product(product)
+                        .imageUrl(path)
+                        .sortOrder(order++)
+                        .build();
 
-            productImageRepository.save(img);
+                productImageRepository.save(img);
+            }
         }
 
         // 4. 옵션 + 재고
-        for (ProductRequest.OptionRequest opt : request.getOptions()) {
-            ProductOption option = optionRepository.save(
-                    ProductOption.builder()
-                            .product(product)
-                            .optionValue(opt.getOptionValue())
-                            .extraPrice(opt.getExtraPrice())
-                            .build()
-            );
+        if (request.getOptions() != null) {
+            for (ProductRequest.OptionRequest opt : request.getOptions()) {
+                ProductOption option = optionRepository.save(
+                        ProductOption.builder()
+                                .product(product)
+                                .optionValue(opt.getOptionValue())
+                                .extraPrice(opt.getExtraPrice())
+                                .build()
+                );
 
-            variantRepository.save(
-                    ProductVariant.builder()
-                            .product(product)
-                            .option(option)
-                            .stock(opt.getStock())
-                            .build()
-            );
+                variantRepository.save(
+                        ProductVariant.builder()
+                                .product(product)
+                                .option(option)
+                                .stock(opt.getStock())
+                                .build()
+                );
+            }
         }
 
         return toResponse(product);
@@ -126,47 +131,51 @@ public class ProductService {
             product.setThumbnailImg(thumbnailPath);
         }
 
-        // 기존 상세 이미지 삭제
-        productImageRepository.deleteByProduct(product);
+        // 상세 이미지: 새 이미지가 있으면 기존 삭제 후 새로 저장
+        if (detailImages != null && !detailImages.isEmpty()) {
+            productImageRepository.deleteByProduct(product);
 
-        // 새 상세 이미지 저장
-        int order = 1;
-        for (MultipartFile file : detailImages) {
-            String path = fileStorageService.storeFile(file, "detail");
+            int order = 1;
+            for (MultipartFile file : detailImages) {
+                String path = fileStorageService.storeFile(file, "detail");
 
-            productImageRepository.save(
-                    ProductImage.builder()
-                            .product(product)
-                            .imageUrl(path)
-                            .sortOrder(order++)
-                            .build()
-            );
+                productImageRepository.save(
+                        ProductImage.builder()
+                                .product(product)
+                                .imageUrl(path)
+                                .sortOrder(order++)
+                                .build()
+                );
+            }
         }
 
-        // 기존 옵션/재고 삭제
-        List<ProductOption> options = optionRepository.findByProduct(product);
-        for (ProductOption option : options) {
-            variantRepository.deleteByOption(option);
-        }
-        optionRepository.deleteByProduct(product);
+        // 옵션/재고 업데이트
+        if (request.getOptions() != null) {
+            // 기존 삭제
+            List<ProductOption> oldOptions = optionRepository.findByProduct(product);
+            for (ProductOption option : oldOptions) {
+                variantRepository.deleteByOption(option);
+            }
+            optionRepository.deleteByProduct(product);
 
-        // 새 옵션/재고
-        for (ProductRequest.OptionRequest opt : request.getOptions()) {
-            ProductOption option = optionRepository.save(
-                    ProductOption.builder()
-                            .product(product)
-                            .optionValue(opt.getOptionValue())
-                            .extraPrice(opt.getExtraPrice())
-                            .build()
-            );
+            // 새로 저장
+            for (ProductRequest.OptionRequest opt : request.getOptions()) {
+                ProductOption option = optionRepository.save(
+                        ProductOption.builder()
+                                .product(product)
+                                .optionValue(opt.getOptionValue())
+                                .extraPrice(opt.getExtraPrice())
+                                .build()
+                );
 
-            variantRepository.save(
-                    ProductVariant.builder()
-                            .product(product)
-                            .option(option)
-                            .stock(opt.getStock())
-                            .build()
-            );
+                variantRepository.save(
+                        ProductVariant.builder()
+                                .product(product)
+                                .option(option)
+                                .stock(opt.getStock())
+                                .build()
+                );
+            }
         }
 
         return toResponse(product);
@@ -206,19 +215,22 @@ public class ProductService {
                                 .build())
                         .collect(Collectors.toList());
 
+        // N+1 해결: 한 번에 모든 variant 조회 후 Map으로 변환
+        Map<Long, Integer> stockMap = variantRepository.findByProduct(product)
+                .stream()
+                .collect(Collectors.toMap(
+                        v -> v.getOption().getOptionId(),
+                        ProductVariant::getStock
+                ));
+
         List<ProductResponse.OptionResponse> options =
                 optionRepository.findByProduct(product).stream()
-                        .map(option -> {
-                            ProductVariant variant =
-                                    variantRepository.findByProductAndOption(product, option).orElse(null);
-
-                            return ProductResponse.OptionResponse.builder()
-                                    .optionId(option.getOptionId())
-                                    .optionValue(option.getOptionValue())
-                                    .extraPrice(option.getExtraPrice())
-                                    .stock(variant != null ? variant.getStock() : 0)
-                                    .build();
-                        })
+                        .map(option -> ProductResponse.OptionResponse.builder()
+                                .optionId(option.getOptionId())
+                                .optionValue(option.getOptionValue())
+                                .extraPrice(option.getExtraPrice())
+                                .stock(stockMap.getOrDefault(option.getOptionId(), 0))
+                                .build())
                         .collect(Collectors.toList());
 
         return ProductResponse.builder()
@@ -229,7 +241,6 @@ public class ProductService {
                 .continent(product.getContinent())
                 .nationality(product.getNationality())
                 .thumbnailImg(product.getThumbnailImg())
-                .detailImg(product.getDetailImg())
                 .detailImages(detailImages)
                 .options(options)
                 .build();

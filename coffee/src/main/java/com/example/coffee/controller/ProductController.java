@@ -2,7 +2,6 @@ package com.example.coffee.controller;
 
 import com.example.coffee.dto.ProductRequest;
 import com.example.coffee.dto.ProductResponse;
-import com.example.coffee.service.FileStorageService;
 import com.example.coffee.service.ProductService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,8 +19,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final FileStorageService fileStorageService;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // =========================
@@ -32,6 +29,7 @@ public class ProductController {
             @RequestParam("productName") String productName,
             @RequestParam(value = "basePrice", required = false, defaultValue = "0") int basePrice,
             @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "continent", required = false) String continent,
             @RequestParam(value = "nationality", required = false) String nationality,
             @RequestParam(value = "options", required = false) String optionsJson,
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
@@ -42,10 +40,10 @@ public class ProductController {
                 .productName(productName)
                 .basePrice(basePrice)
                 .type(type)
+                .continent(continent)
                 .nationality(nationality)
                 .build();
 
-        // 옵션 JSON 파싱
         if (optionsJson != null && !optionsJson.isEmpty()) {
             List<ProductRequest.OptionRequest> opts = objectMapper.readValue(
                     optionsJson,
@@ -54,13 +52,6 @@ public class ProductController {
             req.setOptions(opts);
         }
 
-        // 썸네일 저장
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            String fname = fileStorageService.storeFile(thumbnail, "thumbnail");
-            req.setThumbnailImg(fname);
-        }
-
-        // 서비스 호출 (썸네일 + 상세 이미지 리스트 전달)
         return productService.createProduct(req, thumbnail, detailImages);
     }
 
@@ -73,6 +64,7 @@ public class ProductController {
             @RequestParam("productName") String productName,
             @RequestParam(value = "basePrice", required = false, defaultValue = "0") int basePrice,
             @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "continent", required = false) String continent,
             @RequestParam(value = "nationality", required = false) String nationality,
             @RequestParam(value = "options", required = false) String optionsJson,
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
@@ -83,10 +75,10 @@ public class ProductController {
                 .productName(productName)
                 .basePrice(basePrice)
                 .type(type)
+                .continent(continent)
                 .nationality(nationality)
                 .build();
 
-        // 옵션 JSON 파싱
         if (optionsJson != null && !optionsJson.isEmpty()) {
             List<ProductRequest.OptionRequest> opts = objectMapper.readValue(
                     optionsJson,
@@ -95,13 +87,6 @@ public class ProductController {
             req.setOptions(opts);
         }
 
-        // 썸네일 저장
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            String fname = fileStorageService.storeFile(thumbnail, "thumbnail");
-            req.setThumbnailImg(fname);
-        }
-
-        // 서비스 호출 (썸네일 + 상세 이미지 리스트 전달)
         return productService.updateProduct(id, req, thumbnail, detailImages);
     }
 

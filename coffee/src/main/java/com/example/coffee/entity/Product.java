@@ -38,9 +38,6 @@ public class Product {
     @Column(name = "thumbnail_img", length = 250)
     private String thumbnailImg;
 
-    @Column(name = "detail_img", length = 250)
-    private String detailImg;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortOrder ASC")
     private List<ProductImage> detailImages = new ArrayList<>();

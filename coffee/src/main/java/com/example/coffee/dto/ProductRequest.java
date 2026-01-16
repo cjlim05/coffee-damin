@@ -14,9 +14,6 @@ public class ProductRequest {
     private String type;
     private String continent;
     private String nationality;
-    private String productImg;
-    private String thumbnailImg;
-    private String detailImg;
     private List<OptionRequest> options;
 
     @Data

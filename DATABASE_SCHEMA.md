@@ -47,7 +47,6 @@
 | nationality | VARCHAR(100) | YES | 원산지 |
 | type | VARCHAR(100) | YES | 가공방식 |
 | thumbnail_img | VARCHAR(250) | YES | 썸네일 이미지 경로 |
-| detail_img | VARCHAR(250) | YES | 상세 이미지 경로 |
 
 **인덱스**
 - PK: `product_id`

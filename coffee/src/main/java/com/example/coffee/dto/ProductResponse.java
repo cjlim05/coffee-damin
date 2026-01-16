@@ -19,7 +19,6 @@ public class ProductResponse {
     private String continent;
     private String nationality;
     private String thumbnailImg;
-    private String detailImg;
     private List<ImageResponse> detailImages;
     private List<OptionResponse> options;
 
