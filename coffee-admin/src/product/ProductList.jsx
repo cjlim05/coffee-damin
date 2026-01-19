@@ -1,4 +1,4 @@
-const UPLOAD_BASE = 'http://localhost:8080/uploads/'
+const UPLOAD_BASE = import.meta.env.VITE_API_URL + '/uploads/'
 
 function getImageUrl(path) {
   if (!path) return ''

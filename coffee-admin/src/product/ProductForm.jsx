@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const UPLOAD_BASE = 'http://localhost:8080/uploads/'
+const UPLOAD_BASE = import.meta.env.VITE_API_URL + '/uploads/'
 
 const CONTINENT_COUNTRIES = {
   '아프리카': ['에티오피아', '케냐', '탄자니아', '르완다'],

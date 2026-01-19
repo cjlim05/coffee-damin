@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const API = 'http://localhost:8080/api/products'
+const API = import.meta.env.VITE_API_URL + '/api/products'
 
 export function useProducts() {
   const [products, setProducts] = useState([])

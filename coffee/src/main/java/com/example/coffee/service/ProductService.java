@@ -127,12 +127,21 @@ public class ProductService {
 
         // 썸네일 변경
         if (thumbnail != null && !thumbnail.isEmpty()) {
+            // 기존 썸네일 파일 삭제
+            if (product.getThumbnailImg() != null) {
+                fileStorageService.deleteFile(product.getThumbnailImg());
+            }
             String thumbnailPath = fileStorageService.storeFile(thumbnail, "thumbnail");
             product.setThumbnailImg(thumbnailPath);
         }
 
         // 상세 이미지: 새 이미지가 있으면 기존 삭제 후 새로 저장
         if (detailImages != null && !detailImages.isEmpty()) {
+            // 기존 상세 이미지 파일들 삭제
+            List<ProductImage> oldImages = productImageRepository.findByProductOrderBySortOrder(product);
+            for (ProductImage oldImg : oldImages) {
+                fileStorageService.deleteFile(oldImg.getImageUrl());
+            }
             productImageRepository.deleteByProduct(product);
 
             int order = 1;
@@ -189,6 +198,16 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("상품 없음"));
 
+        // 썸네일 파일 삭제
+        if (product.getThumbnailImg() != null) {
+            fileStorageService.deleteFile(product.getThumbnailImg());
+        }
+
+        // 상세 이미지 파일들 삭제
+        List<ProductImage> images = productImageRepository.findByProductOrderBySortOrder(product);
+        for (ProductImage img : images) {
+            fileStorageService.deleteFile(img.getImageUrl());
+        }
         productImageRepository.deleteByProduct(product);
 
         List<ProductOption> options = optionRepository.findByProduct(product);
