@@ -235,17 +235,23 @@ public class ProductService {
                         .collect(Collectors.toList());
 
         // N+1 해결: 한 번에 모든 variant 조회 후 Map으로 변환
-        Map<Long, Integer> stockMap = variantRepository.findByProduct(product)
-                .stream()
+        List<ProductVariant> variants = variantRepository.findByProduct(product);
+        Map<Long, Integer> stockMap = variants.stream()
                 .collect(Collectors.toMap(
                         v -> v.getOption().getOptionId(),
                         ProductVariant::getStock
+                ));
+        Map<Long, Long> variantIdMap = variants.stream()
+                .collect(Collectors.toMap(
+                        v -> v.getOption().getOptionId(),
+                        ProductVariant::getVariantId
                 ));
 
         List<ProductResponse.OptionResponse> options =
                 optionRepository.findByProduct(product).stream()
                         .map(option -> ProductResponse.OptionResponse.builder()
                                 .optionId(option.getOptionId())
+                                .variantId(variantIdMap.getOrDefault(option.getOptionId(), null))
                                 .optionValue(option.getOptionValue())
                                 .extraPrice(option.getExtraPrice())
                                 .stock(stockMap.getOrDefault(option.getOptionId(), 0))

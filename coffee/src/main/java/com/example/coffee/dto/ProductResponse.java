@@ -38,6 +38,7 @@ public class ProductResponse {
     @AllArgsConstructor
     public static class OptionResponse {
         private Long optionId;
+        private Long variantId;
         private String optionValue;
         private Integer extraPrice;
         private Integer stock;

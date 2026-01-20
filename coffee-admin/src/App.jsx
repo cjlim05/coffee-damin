@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import './App.css'
 import AdminProducts from './product/AdminProducts'
+import AdminMembers from './member/AdminMembers'
+import AdminOrders from './order/AdminOrders'
 
 const MENU_ITEMS = [
   { id: 'home', label: 'Home', icon: '/' },
   { id: 'products', label: '상품 관리', icon: '/' },
-  // 향후 확장을 위한 메뉴 (주석 해제하여 사용)
-  // { id: 'orders', label: '주문 관리', icon: '/' },
-  // { id: 'users', label: '회원 관리', icon: '/' },
+  { id: 'members', label: '회원 관리', icon: '/' },
+  { id: 'orders', label: '주문 관리', icon: '/' },
 ]
 
 function App() {
@@ -56,22 +57,29 @@ function App() {
                   <span className="action-desc">원두 상품 등록 및 관리</span>
                 </button>
 
-                {/* 향후 확장을 위한 카드 */}
-                <div className="action-card disabled">
-                  <span className="action-title">주문 관리</span>
-                  <span className="action-desc">준비중</span>
-                </div>
-
-                <div className="action-card disabled">
+                <button
+                  className="action-card"
+                  onClick={() => setView('members')}
+                >
                   <span className="action-title">회원 관리</span>
-                  <span className="action-desc">준비중</span>
-                </div>
+                  <span className="action-desc">회원 정보 등록 및 관리</span>
+                </button>
+
+                <button
+                  className="action-card"
+                  onClick={() => setView('orders')}
+                >
+                  <span className="action-title">주문 관리</span>
+                  <span className="action-desc">주문 내역 조회 및 상태 관리</span>
+                </button>
               </div>
             </div>
           </div>
         )}
 
         {view === 'products' && <AdminProducts />}
+        {view === 'members' && <AdminMembers />}
+        {view === 'orders' && <AdminOrders />}
       </main>
     </div>
   )
