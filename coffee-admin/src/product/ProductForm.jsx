@@ -221,7 +221,10 @@ export default function ProductForm({ editingId, editData, onSave, onCancel, sho
   return (
     <div className="card">
       <div className="card-header">
-        <h2>{editingId ? '상품 수정' : '새 상품 등록'}</h2>
+        <div className="card-title-group">
+          <h2>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
+          <p>{editingId ? '상품 정보를 수정합니다' : 'Create a new specialty coffee listing'}</p>
+        </div>
         {editingId && (
           <button type="button" className="btn btn-ghost" onClick={handleCancel}>
             취소

@@ -1,9 +1,9 @@
 const STATUS_OPTIONS = [
-  { value: 'PENDING', label: '대기' },
-  { value: 'PAID', label: '결제완료' },
-  { value: 'SHIPPING', label: '배송중' },
-  { value: 'COMPLETED', label: '완료' },
-  { value: 'CANCELLED', label: '취소' },
+  { value: 'PENDING', label: 'Pending', color: 'pending' },
+  { value: 'PAID', label: 'Paid', color: 'paid' },
+  { value: 'SHIPPING', label: 'Shipping', color: 'shipping' },
+  { value: 'COMPLETED', label: 'Completed', color: 'completed' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'cancelled' },
 ]
 
 function formatPrice(price) {
@@ -12,70 +12,75 @@ function formatPrice(price) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleDateString('ko-KR', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
     year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
   })
 }
 
-export default function OrderDetail({ order, onStatusChange, onClose }) {
+export default function OrderDetail({ order, onStatusChange, onClose, onDelete }) {
   return (
     <div className="card order-detail">
       <div className="card-header">
-        <h2>주문 상세 #{order.orderId}</h2>
-        <button className="btn btn-ghost" onClick={onClose}>닫기</button>
+        <div className="card-title-group">
+          <h2>Order #{String(order.orderId).padStart(4, '0')}</h2>
+          <p>{formatDate(order.orderDate)}</p>
+        </div>
+        <button className="btn btn-ghost" onClick={onClose}>✕</button>
       </div>
 
       <div className="detail-content">
         <section className="detail-section">
-          <h3>주문 상태</h3>
-          <select
-            className="form-select status-select"
-            value={order.status}
-            onChange={e => onStatusChange(order.orderId, e.target.value)}
-          >
-            {STATUS_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <h3 className="detail-section-title">Order Status</h3>
+          <div className="status-select-wrapper">
+            <select
+              className="form-select status-select"
+              value={order.status}
+              onChange={e => onStatusChange(order.orderId, e.target.value)}
+            >
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
         </section>
 
         <section className="detail-section">
-          <h3>회원 정보</h3>
+          <h3 className="detail-section-title">Customer Information</h3>
           <div className="info-grid">
             <div className="info-item">
-              <span className="label">이름</span>
+              <span className="label">Name</span>
               <span className="value">{order.member?.name || '-'}</span>
             </div>
             <div className="info-item">
-              <span className="label">이메일</span>
+              <span className="label">Email</span>
               <span className="value">{order.member?.email || '-'}</span>
             </div>
             <div className="info-item">
-              <span className="label">연락처</span>
+              <span className="label">Phone</span>
               <span className="value">{order.member?.phone || '-'}</span>
             </div>
           </div>
         </section>
 
         <section className="detail-section">
-          <h3>배송 정보</h3>
-          <p className="shipping-address">{order.shippingAddress || '주소 없음'}</p>
+          <h3 className="detail-section-title">Shipping Address</h3>
+          <p className="shipping-address">{order.shippingAddress || 'No address provided'}</p>
         </section>
 
         <section className="detail-section">
-          <h3>주문 상품</h3>
+          <h3 className="detail-section-title">Order Items</h3>
           <table className="items-table">
             <thead>
               <tr>
-                <th>상품명</th>
-                <th>옵션</th>
-                <th>수량</th>
-                <th>단가</th>
-                <th>소계</th>
+                <th>Product</th>
+                <th>Option</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
               </tr>
             </thead>
             <tbody>
@@ -84,24 +89,35 @@ export default function OrderDetail({ order, onStatusChange, onClose }) {
                   <td>{item.productName}</td>
                   <td>{item.optionValue}</td>
                   <td>{item.quantity}</td>
-                  <td>{formatPrice(item.unitPrice)}원</td>
-                  <td>{formatPrice(item.subtotal)}원</td>
+                  <td>₩{formatPrice(item.unitPrice)}</td>
+                  <td>₩{formatPrice(item.subtotal)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan="4">총 금액</td>
-                <td><strong>{formatPrice(order.totalAmount)}원</strong></td>
+                <td colSpan="4">Total Amount</td>
+                <td>₩{formatPrice(order.totalAmount)}</td>
               </tr>
             </tfoot>
           </table>
         </section>
 
-        <section className="detail-section">
-          <h3>주문 일시</h3>
-          <p>{formatDate(order.orderDate)}</p>
-        </section>
+        <div className="form-actions">
+          <button className="btn btn-outline" onClick={onClose}>
+            Close
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              if (confirm('이 주문을 삭제하시겠습니까?')) {
+                onDelete(order.orderId)
+              }
+            }}
+          >
+            Delete Order
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -56,7 +56,10 @@ export default function MemberForm({ editingId, editData, onSave, onCancel, show
   return (
     <div className="card">
       <div className="card-header">
-        <h2>{editingId ? '회원 수정' : '새 회원 등록'}</h2>
+        <div className="card-title-group">
+          <h2>{editingId ? 'Edit Member' : 'Register New Member'}</h2>
+          <p>{editingId ? '회원 정보를 수정합니다' : '새로운 회원을 등록합니다'}</p>
+        </div>
         {editingId && (
           <button type="button" className="btn btn-ghost" onClick={handleCancel}>
             취소
